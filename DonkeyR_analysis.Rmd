@@ -1,0 +1,45 @@
+---
+title: "Emma data analysis"
+author: "AG"
+date: "14 September 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+library(plyr)
+library(reshape2)
+library(ggplot2)
+library(gridExtra)
+library(pander)
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(data.table)
+rm(list=ls() ) 
+```
+
+```{r importdatasets}
+data.path <-"original-data"
+EA1 <- read.csv(file.path(data.path,"Equine_assessment_form_1-170914163241042.csv"))
+EA2 <- read.csv(file.path(data.path,"Equine_assessment_form_2-170914163239558.csv"))
+OR1 <- read.csv(file.path(data.path,"Owner_donkey_records_1-170914163240433.csv"))
+DC1 <- read.csv(file.path(data.path,"Donkey_clinic_records_1-170914163244183.csv"))
+DL1 <- read.csv(file.path(data.path,"Donkey_lesion_form-170914163240011.csv"))
+#turn into a tible
+#EA1 <- tbl_df(EA1)
+EA2 <- tbl_df(EA2)
+#Turn into a df
+#EA1 <- as.data.frame(EA1)
+```
+
+```{r separate columns}
+EA2.1 <- separate(EA2, Lesion.form, c("LID1","LID2", "LID3", "LID4"), sep = ",")
+
+table(EA2.1$LID4)
+
+```
+
+
+
