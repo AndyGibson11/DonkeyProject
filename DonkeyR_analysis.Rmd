@@ -20,13 +20,15 @@ library(data.table)
 rm(list=ls() ) 
 ```
 
+
+
 ```{r importdatasets}
 data.path <-"original-data"
 EA1 <- read.csv(file.path(data.path,"Equine_assessment_form_1-170914163241042.csv"))
 EA2 <- read.csv(file.path(data.path,"Equine_assessment_form_2-170914163239558.csv"))
 OR1 <- read.csv(file.path(data.path,"Owner_donkey_records_1-170914163240433.csv"))
 DC1 <- read.csv(file.path(data.path,"Donkey_clinic_records_1-170914163244183.csv"))
-DL1 <- read.csv(file.path(data.path,"Donkey_lesion_form-170914163240011.csv"))
+LE1 <- read.csv(file.path(data.path,"Donkey_lesion_form-170914163240011.csv"))
 #turn into a tible
 #EA1 <- tbl_df(EA1)
 EA2 <- tbl_df(EA2)
@@ -34,12 +36,72 @@ EA2 <- tbl_df(EA2)
 #EA1 <- as.data.frame(EA1)
 ```
 
-```{r separate columns}
-EA2.1 <- separate(EA2, Lesion.form, c("LID1","LID2", "LID3", "LID4"), sep = ",")
 
-table(EA2.1$LID4)
+```{r data cleaning vacc15}
+#remove duplicates (there turn out not to be any duiplicates here)
+dup <- distinct(EA1, AnswerCode, .keep_all = TRUE)
+dup1 <- distinct(EA2, AnswerCode, .keep_all = TRUE)
+EA1 <- EA1[!duplicated(EA1$AnswerCode), ]
+EA2 <- EA2[!duplicated(EA2$AnswerCode), ]
+OR1 <- OR1[!duplicated(OR1$AnswerCode), ]
+DC1 <- DC1[!duplicated(DC1$AnswerCode), ]
+LE1 <- LE1[!duplicated(LE1$AnswerCode), ]
+
 
 ```
 
+
+The cascade of forms is like this
+* OWNER RECORDS = DC1 (03/10/17 to 28/04/17) + OR1 (23/05/17 to 25/07/17)
++ the link for Owner is $ownerID$ in DC/OR and EA1/EA2
+* EQUINE RECORDS = EA1 (03/10/17 to 28/04/17) + (23/05/17 to 25/07/17)
++ the link to the horse is $AnswerCode$ in EA1/EA2 and ParentID in LE1
+* LESION RECORDS = LE1 (03/10/17 to 25/07/17)
+
+```{r linking Parent form to Daughter form}
+
+# The cascade of forms is like this
+# OWNER RECORDS = DC1 (03/10/17 to 28/04/17) + OR1 (23/05/17 to 25/07/17)
+# EQUINE RECORDS = EA1 (03/10/17 to 28/04/17) + (23/05/17 to 25/07/17)
+# LESION RECORDS = LE1 (03/10/17 to 25/07/17)
+
+#DC1
+
+# EA1 and EA2 are parent forms - they contain 
+
+```
+
+
+```{r joining EA1 and EA2}
+### Andy to work on this next
+##EA1 and EA2 share a number of common columns
+
+
+
+```
+
+```{r import maps}
+### get data from shapefile
+library(maptools)
+IND_3 <- readShapePoly(file.path("maps/india_admin/IND_adm3.shp"))
+
+
+EA_points <-SpatialPoints(cbind(EA_join$Long, EA_join$Lat))
+taluka_overlay <-over(EA_points, IND_3)
+EA_join$Name <- droplevels(taluka_overlay$Name)
+GV44$Taluka <- droplevels(panchayatsOverlay$Taluka)
+GV44$TRU <- droplevels(panchayatsOverlay$TRU)
+
+
+```
+
+
+
+
+```{r joining by layers}
+
+
+
+```
 
 
