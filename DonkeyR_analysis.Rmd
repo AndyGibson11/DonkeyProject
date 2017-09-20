@@ -22,11 +22,12 @@ rm(list=ls() )
 
 ```{r importdatasets}
 data.path <-"original-data"
+data.path2 <-"original-data2"
 EA1 <- read.csv(file.path(data.path,"Equine_assessment_form_1-170914163241042.csv"))
 EA2 <- read.csv(file.path(data.path,"Equine_assessment_form_2-170914163239558.csv"))
 OR1 <- read.csv(file.path(data.path,"Owner_donkey_records_1-170914163240433.csv"))
 DC1 <- read.csv(file.path(data.path,"Donkey_clinic_records_1-170914163244183.csv"))
-LE1 <- read.csv(file.path(data.path,"Donkey_lesion_form-170914163240011.csv"))
+LE1 <- read.csv(file.path(data.path2,"Donkey_lesion_form-170915171727144 - Parent ID.csv"))
 #turn into a tible
 #EA1 <- tbl_df(EA1)
 EA2 <- tbl_df(EA2)
@@ -60,15 +61,26 @@ The cascade of forms is like this
 * LESION RECORDS = LE1 (03/10/17 to 25/07/17)
 
 ```{r joining EA1 and EA2}
-
+## number of duplicate IDs in each dataset 
+length(which(duplicated(EA1$AnswerCode))) #0
+length(which(duplicated(EA2$AnswerCode))) #0
 ##EA1 and EA2 share a number of common columns - need to join the rows based on common columns
-
+EA <- plyr::rbind.fill(EA1, EA2) # contains all columns, even ones who don't match
+which(LE1$ParentCode %in% EA$AnswerCode==FALSE) # tells you which rows don't have a matching EA$AnswerCode
 ```
 
 ```{r joining DC1 and OR2}
-
+## number of duplicate IDs in each dataset 
+length(which(duplicated(OR1$ownerID.number))) #1
+OR1$ownerID.number[(which(duplicated(OR1$ownerID.number)))] # these are: ownerID 63
+length(which(duplicated(DC1$ownerID.number))) #2
+DC1$ownerID.number[(which(duplicated(DC1$ownerID.number)))] # these are: ownerID 5, 32
+## number of IDs that appear in both datasets 
+which(unique(OR1$ownerID.number) %in% unique(DC1$ownerID.number)) # 0
 ##DC1 and OR1 share a number of common columns - need to join the rows based on common columns
-
+OR <- plyr::rbind.fill(DC1,OR1) # contains all columns, even ones who don't match
+ORduplicates<-subset(OR, ownerID.number %in% OR$ownerID.number[(which(duplicated(OR$ownerID.number)))])
+write.csv(ORduplicates, "extracted_data/owner_duplicates.csv")
 ```
 
 ```{r linking Parent form to Daughter form}
@@ -106,8 +118,14 @@ EA_join$Taluka <- droplevels(panchayatsOverlay$Taluka)
 
 
 ```{r joining by layers}
+## join EA dataset with OR dataset keeping all rows of EA
+EAOR <- left_join(EA, OR,by = c("ownerID"="ownerID.number"))
+## dataset containing all lesions joined with matching animal data and owner data
+LE1EAOR <- left_join(LE1, EAOR,by = c("ParentCode"="AnswerCode.x"))
 
-
+## save dataframe
+write.csv(LE1EAOR, "extracted_data/extracted_joineddata.csv") 
+## need to decide which OR duplicates to remove and run this again
 
 ```
 
