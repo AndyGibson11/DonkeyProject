@@ -20,8 +20,6 @@ library(data.table)
 rm(list=ls() ) 
 ```
 
-
-
 ```{r importdatasets}
 data.path <-"original-data"
 EA1 <- read.csv(file.path(data.path,"Equine_assessment_form_1-170914163241042.csv"))
@@ -52,11 +50,26 @@ LE1 <- LE1[!duplicated(LE1$AnswerCode), ]
 
 
 The cascade of forms is like this
+
 * OWNER RECORDS = DC1 (03/10/17 to 28/04/17) + OR1 (23/05/17 to 25/07/17)
 + the link for Owner is $ownerID$ in DC/OR and EA1/EA2
+
 * EQUINE RECORDS = EA1 (03/10/17 to 28/04/17) + (23/05/17 to 25/07/17)
 + the link to the horse is $AnswerCode$ in EA1/EA2 and ParentID in LE1
+
 * LESION RECORDS = LE1 (03/10/17 to 25/07/17)
+
+```{r joining EA1 and EA2}
+
+##EA1 and EA2 share a number of common columns - need to join the rows based on common columns
+
+```
+
+```{r joining DC1 and OR2}
+
+##DC1 and OR1 share a number of common columns - need to join the rows based on common columns
+
+```
 
 ```{r linking Parent form to Daughter form}
 
@@ -72,13 +85,7 @@ The cascade of forms is like this
 ```
 
 
-```{r joining EA1 and EA2}
-### Andy to work on this next
-##EA1 and EA2 share a number of common columns
 
-
-
-```
 
 ```{r import maps}
 ### get data from shapefile
@@ -89,8 +96,8 @@ IND_3 <- readShapePoly(file.path("maps/india_admin/IND_adm3.shp"))
 EA_points <-SpatialPoints(cbind(EA_join$Long, EA_join$Lat))
 taluka_overlay <-over(EA_points, IND_3)
 EA_join$Name <- droplevels(taluka_overlay$Name)
-GV44$Taluka <- droplevels(panchayatsOverlay$Taluka)
-GV44$TRU <- droplevels(panchayatsOverlay$TRU)
+EA_join$Taluka <- droplevels(panchayatsOverlay$Taluka)
+
 
 
 ```
