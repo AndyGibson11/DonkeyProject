@@ -124,7 +124,7 @@ EAOR <- left_join(EA, OR,by = c("ownerID"="ownerID.number"))
 LE1EAOR <- left_join(LE1, EAOR,by = c("ParentCode"="AnswerCode.x"))
 
 ## save dataframe
-write.csv(LE1EAOR, "extracted_data/extracted_joineddata.csv") 
+write.csv(LE1EAOR, "extracted_data/lesions_joineddata.csv") 
 ## need to decide which OR duplicates to remove and run this again
 
 ```
