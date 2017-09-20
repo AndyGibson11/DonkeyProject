@@ -77,10 +77,14 @@ length(which(duplicated(DC1$ownerID.number))) #2
 DC1$ownerID.number[(which(duplicated(DC1$ownerID.number)))] # these are: ownerID 5, 32
 ## number of IDs that appear in both datasets 
 which(unique(OR1$ownerID.number) %in% unique(DC1$ownerID.number)) # 0
+## correct duplicate ownerID.number
+OR1$ownerID.number[OR1$ownerID.number==63 & OR1$owner.village=="gandhinagar"] <- "63b"
+DC1$ownerID.number[DC1$ownerID.number==32 & DC1$owner.village=="palacode"] <- "32b"
+DC1 <- subset(DC1, AnswerCode!="D-031016144429-86-5")
 ##DC1 and OR1 share a number of common columns - need to join the rows based on common columns
 OR <- plyr::rbind.fill(DC1,OR1) # contains all columns, even ones who don't match
 ORduplicates<-subset(OR, ownerID.number %in% OR$ownerID.number[(which(duplicated(OR$ownerID.number)))])
-write.csv(ORduplicates, "extracted_data/owner_duplicates.csv")
+#write.csv(ORduplicates, "extracted_data/owner_duplicates.csv")
 ```
 
 ```{r linking Parent form to Daughter form}
@@ -119,6 +123,7 @@ EA_join$Taluka <- droplevels(panchayatsOverlay$Taluka)
 
 ```{r joining by layers}
 ## join EA dataset with OR dataset keeping all rows of EA
+EA$ownerID <- as.character(EA$ownerID)
 EAOR <- left_join(EA, OR,by = c("ownerID"="ownerID.number"))
 ## dataset containing all lesions joined with matching animal data and owner data
 LE1EAOR <- left_join(LE1, EAOR,by = c("ParentCode"="AnswerCode.x"))
